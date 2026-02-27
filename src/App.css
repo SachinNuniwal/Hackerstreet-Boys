@@ -1,3 +1,22 @@
+/* ===== DARK MODE VARIABLES ===== */
+:root {
+  --bg: #f9fafb;
+  --text: #111827;
+  --card: #ffffff;
+  --border: #e5e7eb;
+}
+
+body.dark {
+  --bg: #111827;
+  --text: #f9fafb;
+  --card: #1f2937;
+  --border: #374151;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -34,7 +53,8 @@
 }
 
 .card {
-  padding: 2em;
+  background: var(--card);
+  border: 1px solid var(--border);
 }
 
 .read-the-docs {

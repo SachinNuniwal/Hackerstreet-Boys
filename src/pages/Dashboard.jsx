@@ -14,13 +14,12 @@ function loadEvents() {
 function saveEvents(list) {
   localStorage.setItem("em_events", JSON.stringify(list));
 }
-
 function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
   const [events, setEvents] = useState(loadEvents);
-  const [modal,  setModal]  = useState(null);   // null | "add" | event object
+  const [modal, setModal] = useState(null);   // null | "add" | event object
   const [search, setSearch] = useState("");
-  const [sort,   setSort]   = useState("date-asc");
-  const [delId,  setDelId]  = useState(null);
+  const [sort, setSort] = useState("date-asc");
+  const [delId, setDelId] = useState(null);
 
   // ── event operations ──────────────────────────────────────────────────────
   function addEvent(data) {
@@ -61,18 +60,18 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
     }
 
     return [...list].sort((a, b) => {
-      if (sort === "date-asc")   return a.date < b.date ? -1 : 1;
-      if (sort === "date-desc")  return a.date > b.date ? -1 : 1;
-      if (sort === "title-asc")  return a.title.localeCompare(b.title);
+      if (sort === "date-asc") return a.date < b.date ? -1 : 1;
+      if (sort === "date-desc") return a.date > b.date ? -1 : 1;
+      if (sort === "title-asc") return a.title.localeCompare(b.title);
       if (sort === "title-desc") return b.title.localeCompare(a.title);
       return 0;
     });
   }, [events, search, sort]);
 
   // stats
-  const today    = new Date(new Date().toDateString());
+  const today = new Date(new Date().toDateString());
   const upcoming = events.filter(e => new Date(e.date + "T00:00:00") >= today).length;
-  const past     = events.length - upcoming;
+  const past = events.length - upcoming;
 
   // format date nicely
   function fmtDate(str) {
@@ -334,7 +333,7 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
                   {ev.description && <div className="ev-desc">{ev.description}</div>}
                   <div className="ev-actions">
                     <button className="btn-edit" onClick={() => setModal(ev)}>✏️ Edit</button>
-                    <button className="btn-del"  onClick={() => setDelId(ev.id)}>🗑️ Delete</button>
+                    <button className="btn-del" onClick={() => setDelId(ev.id)}>🗑️ Delete</button>
                   </div>
                 </div>
               ))}
@@ -361,7 +360,7 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
             <div className="del-title">Delete Event?</div>
             <div className="del-sub">This action cannot be undone.</div>
             <div className="del-btns">
-              <button className="btn-keep"        onClick={() => setDelId(null)}>Keep it</button>
+              <button className="btn-keep" onClick={() => setDelId(null)}>Keep it</button>
               <button className="btn-del-confirm" onClick={() => deleteEvent(delId)}>Delete</button>
             </div>
           </div>
