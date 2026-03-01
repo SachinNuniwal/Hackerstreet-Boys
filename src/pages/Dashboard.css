@@ -1,0 +1,329 @@
+/* ===================================================
+   LIGHT MODE (DEFAULT)
+=================================================== */
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #6366f1;
+  --danger: #ef4444;
+}
+
+/* ===================================================
+   DARK MODE
+=================================================== */
+.dark {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #818cf8;
+  --danger: #f87171;
+}
+
+/* ===================================================
+   GLOBAL
+=================================================== */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.db {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ===================================================
+   HEADER
+=================================================== */
+.db-header {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  height: 64px;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: relative;
+  z-index: 100;
+
+  box-shadow: 0 6px 20px rgba(29, 32, 194, 0.35);
+}
+
+/* LEFT MENU BUTTON */
+.menu-btn {
+  font-size: 22px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* CENTER LOGO */
+.db-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  white-space: nowrap;
+}
+
+/* RIGHT SIDE */
+.db-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.db-user {
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+}
+
+/* HEADER BUTTONS */
+.logout-btn,
+.theme-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover,
+.theme-btn:hover {
+  background: rgba(255,255,255,0.28);
+}
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: -250px;
+  width: 220px;
+  height: 100%;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  transition: 0.3s ease;
+  padding-top: 20px;
+  z-index: 200;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 14px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: 0.2s ease;
+}
+
+.sidebar li:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ===================================================
+   MAIN CONTENT
+=================================================== */
+.db-main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 32px 24px;
+}
+
+/* ===================================================
+   STAT CARDS
+=================================================== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.stat {
+  border-radius: 16px;
+  padding: 22px;
+  color: #fff;
+  transition: 0.25s ease;
+}
+
+.stat:nth-child(1) {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.stat:nth-child(2) {
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+}
+
+.stat:nth-child(3) {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+}
+
+.stat:hover {
+  transform: translateY(-4px);
+}
+
+.stat-lbl {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.stat-val {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+/* ===================================================
+   TOOLBAR
+=================================================== */
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.search-input,
+.sort-sel {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.search-input:focus,
+.sort-sel:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  outline: none;
+}
+
+.add-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ===================================================
+   EVENT GRID
+=================================================== */
+.ev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.ev-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  transition: 0.25s ease;
+}
+
+.ev-card:hover {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+.ev-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ev-date {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.ev-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 12px;
+}
+
+/* ===================================================
+   ACTION BUTTONS
+=================================================== */
+.ev-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit,
+.btn-del {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-edit:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-del:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ===================================================
+   RESPONSIVE
+=================================================== */
+@media (max-width: 768px) {
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stats .stat:last-child {
+    grid-column: span 2;
+  }
+
+  .db-user {
+    display: none;
+  }
+
+  .db-logo {
+    font-size: 14px;
+  }
+}
