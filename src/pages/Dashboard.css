@@ -2,11 +2,11 @@
    LIGHT MODE (DEFAULT)
 =================================================== */
 :root {
-  --bg: #f1f5f9;
-  --card: #ffffff;
+  --bg: #e6e8ea;
+  --card: #8221a5e6;
   --border: #e2e8f0;
-  --text: #0f172a;
-  --muted: #64748b;
+  --text: #0b0b0b;
+  --muted: #184789;
   --primary: #6366f1;
   --danger: #ef4444;
 }
@@ -15,7 +15,7 @@
    DARK MODE
 =================================================== */
 .dark {
-  --bg: #0f172a;
+  --bg: #062b84;
   --card: #1e293b;
   --border: #334155;
   --text: #f1f5f9;
@@ -53,7 +53,7 @@ body {
   justify-content: space-between;
 
   position: relative;
-  z-index: 100;
+  z-index: 400;
 
   box-shadow: 0 6px 20px rgba(29, 32, 194, 0.35);
 }
@@ -107,46 +107,69 @@ body {
 .theme-btn:hover {
   background: rgba(255,255,255,0.28);
 }
-/* SIDEBAR */
+
+/* ===================================================
+   SIDEBAR (FIXED VERSION)
+=================================================== */
+
 .sidebar {
   position: fixed;
   top: 64px;
-  left: -250px;
+  left: 0;
   width: 220px;
-  height: 100%;
+  height: calc(100% - 64px);
   background: var(--card);
   border-right: 1px solid var(--border);
-  transition: 0.3s ease;
-  padding-top: 20px;
-  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 300;
 }
 
 .sidebar.open {
-  left: 0;
+  transform: translateX(0);
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
   padding: 14px 20px;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: 0.2s ease;
+  border-bottom: 4px solid var(--border);
 }
 
 .sidebar li:hover {
   background: var(--primary);
-  color: white;
+  color: rgb(252, 247, 247);
+}
+
+/* OVERLAY (click outside close) */
+.overlay {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 64px);
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s ease;
+  z-index: 250;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ===================================================
    MAIN CONTENT
 =================================================== */
 .db-main {
-  max-width: 1100px;
+  max-width: 1500px;
   margin: auto;
   padding: 32px 24px;
 }
