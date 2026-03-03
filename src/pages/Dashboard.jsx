@@ -2,102 +2,49 @@ import { useState, useMemo, useEffect } from "react";
 import EventModal from "../components/EventModal";
 import "./Dashboard.css";
 
+const LS_EVENTS = "em_events";
+
 function loadEvents() {
   try {
-    const data = localStorage.getItem("em_events");
+    const data = localStorage.getItem(LS_EVENTS);
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
 }
 
-function saveEvents(list) {
-  localStorage.setItem("em_events", JSON.stringify(list));
+function saveEvents(data) {
+  localStorage.setItem(LS_EVENTS, JSON.stringify(data));
 }
 
 function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
+
   const [events, setEvents] = useState(loadEvents);
   const [modal, setModal] = useState(null);
+  const [statsModal, setStatsModal] = useState(null);
+  const [view, setView] = useState("events");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("date-asc");
+  const [sortOrder, setSortOrder] = useState("date-asc");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // 🔥 Default view = exam schedule
-  const [view, setView] = useState("exam");
-
-  /* Dark Mode */
   useEffect(() => {
     if (darkMode) document.body.classList.add("dark");
     else document.body.classList.remove("dark");
   }, [darkMode]);
 
-  /* ================= EXAM SCHEDULE ================= */
-
-  const examSchedule = [
-    { title: "1st Class Test", date: "2026-02-23", endDate: "2026-02-27" },
-    { title: "Marks Submission (CT-1)", date: "2026-03-04" },
-    { title: "PTM (After CT-1)", date: "2026-03-08" },
-    { title: "2nd Class Test", date: "2026-04-06", endDate: "2026-04-10" },
-    { title: "Marks Submission (CT-2)", date: "2026-04-15" },
-    { title: "PTM (After CT-2)", date: "2026-04-18" },
-    { title: "Internal Practical Evaluation", date: "2026-04-27", endDate: "2026-04-30" },
-    { title: "Full Syllabus Examination", date: "2026-05-01", endDate: "2026-05-08" },
-    { title: "Final Marks Submission", date: "2026-05-11" },
-  ];
-
-  /* ================= HOLIDAYS ================= */
-
-  const academicHolidays = [
-    { date: "2026-01-26", reason: "Republic Day" },
-    { date: "2026-03-04", reason: "Holi" },
-    { date: "2026-04-03", reason: "Good Friday" },
-    { date: "2026-04-14", reason: "Ambedkar Jayanti" },
-  ];
-
-  function generateWeeklyHolidays(year) {
-    const list = [];
-    for (let month = 0; month < 12; month++) {
-      let saturdayCount = 0;
-      for (let day = 1; day <= 31; day++) {
-        const date = new Date(year, month, day);
-        if (date.getMonth() !== month) break;
-        const dayOfWeek = date.getDay();
-
-        if (dayOfWeek === 0)
-          list.push({ date: date.toISOString().split("T")[0], reason: "Sunday" });
-
-        if (dayOfWeek === 6) {
-          saturdayCount++;
-          if (saturdayCount === 2 || saturdayCount === 4) {
-            list.push({
-              date: date.toISOString().split("T")[0],
-              reason: `${saturdayCount} Saturday`,
-            });
-          }
-        }
-      }
-    }
-    return list;
-  }
-
-  const weeklyHolidays = generateWeeklyHolidays(2026);
-  const allHolidays = [...academicHolidays, ...weeklyHolidays].sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
-  );
-
-  /* ================= EVENTS SYSTEM (UNCHANGED) ================= */
+  const today = new Date().toISOString().split("T")[0];
+  const totalEvents = events.length;
+  const upcomingEvents = events.filter(e => e.date >= today);
+  const pastEvents = events.filter(e => e.date < today);
 
   function addEvent(data) {
-    const updated = [
-      { id: crypto?.randomUUID?.() || Date.now().toString(), ...data },
-      ...events,
-    ];
+    const updated = [{ id: Date.now().toString(), ...data }, ...events];
     setEvents(updated);
     saveEvents(updated);
   }
 
   function editEvent(id, data) {
-    const updated = events.map((e) =>
+    const updated = events.map(e =>
       e.id === id ? { ...e, ...data } : e
     );
     setEvents(updated);
@@ -106,7 +53,7 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
 
   function deleteEvent(id) {
     if (!window.confirm("Delete this event?")) return;
-    const updated = events.filter((e) => e.id !== id);
+    const updated = events.filter(e => e.id !== id);
     setEvents(updated);
     saveEvents(updated);
   }
@@ -119,17 +66,24 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
 
   const filteredEvents = useMemo(() => {
     let list = [...events];
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (e) =>
+        e =>
           e.title.toLowerCase().includes(q) ||
           (e.description || "").toLowerCase().includes(q)
       );
     }
 
-    return list.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [events, search]);
+    list.sort((a, b) =>
+      sortOrder === "date-asc"
+        ? new Date(a.date) - new Date(b.date)
+        : new Date(b.date) - new Date(a.date)
+    );
+
+    return list;
+  }, [events, search, sortOrder]);
 
   function fmtDate(str) {
     return new Date(str).toLocaleDateString("en-IN", {
@@ -140,84 +94,173 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
     });
   }
 
-  /* ================= JSX ================= */
-
   return (
     <>
       <div className="db">
-        {/* HEADER */}
+
+        {sidebarOpen && (
+          <div
+            className="sidebar-overlay"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
+
         <header className="db-header">
-          <button className="menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-          <div className="db-logo">RPS Group of Engineering and Technology</div>
+          <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
+            ☰
+          </button>
+
+          <div className="db-logo">
+            RPS Group of Engineering and Technology
+          </div>
+
           <div className="db-right">
-            <span className="db-user">Hi, {user} 👋</span>
-            <button className="theme-btn" onClick={onToggleDark}>
+            <span>Hi, {user} 👋</span>
+            <button onClick={onToggleDark}>
               {darkMode ? "☀️" : "🌙"}
             </button>
-            <button className="logout-btn" onClick={onLogout}>Sign out</button>
           </div>
         </header>
 
-        {/* SIDEBAR */}
         <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
           <ul>
-            <li onClick={() => { setView("exam"); setSidebarOpen(false); }}>📅 Exam Schedule</li>
-            <li onClick={() => { setView("holidays"); setSidebarOpen(false); }}>🎉 Holidays</li>
-            <li onClick={() => { setView("events"); setSidebarOpen(false); }}>📝 Events</li>
-            <li onClick={() => setView("meetings")}>👥 Meetings</li>
-            <li onClick={() => setView("trips")}>🚌 Trips</li>
-            <li onClick={() => setView("sports")}>🏆 Sports</li>
+            <li onClick={() => { setView("events"); setSidebarOpen(false); }}>
+                🏠 Home
+            </li>
+            <li onClick={() => { setView("activities"); setSidebarOpen(false); }}>
+               📘 Academic Activities
+            </li>
+            <li onClick={() => { setView("exams"); setSidebarOpen(false); }}>
+               📅 Exam Schedule
+            </li>
+            <li onClick={() => { setView("holidays"); setSidebarOpen(false); }}>
+               🎉 Holidays
+            </li>
+            <li onClick={() => { setView("events"); setSidebarOpen(false); }}>
+               🎉 Custom Events
+            </li>
+            <li onClick={() => { setModal("add"); setSidebarOpen(false); }}>
+              ➕ Add Event
+            </li>
+            <li onClick={onLogout}>Logout</li>
           </ul>
         </div>
 
-        {sidebarOpen && (
-          <div className="overlay show" onClick={() => setSidebarOpen(false)}></div>
-        )}
-
-        {/* MAIN */}
         <main className="db-main">
 
-          {/* EXAM SCHEDULE */}
-          {view === "exam" && (
-            <div className="ev-grid">
-              {examSchedule.map((ex, i) => (
-                <div className="ev-card" key={i}>
-                  <div className="ev-title">{ex.title}</div>
-                  <div className="ev-date">
-                    📅 {fmtDate(ex.date)}
-                    {ex.endDate && ` - ${fmtDate(ex.endDate)}`}
-                  </div>
+          {/* EVENTS DASHBOARD */}
+          {view === "events" && (
+            <>
+              <div className="stats-row">
+                <div className="stats-box" onClick={() => setStatsModal("total")}>
+                  <h3>{totalEvents}</h3>
+                  <p>Total</p>
                 </div>
-              ))}
-            </div>
+                <div className="stats-box upcoming" onClick={() => setStatsModal("upcoming")}>
+                  <h3>{upcomingEvents.length}</h3>
+                  <p>Upcoming</p>
+                </div>
+                <div className="stats-box past" onClick={() => setStatsModal("past")}>
+                  <h3>{pastEvents.length}</h3>
+                  <p>Past</p>
+                </div>
+              </div>
+
+              <div className="ev-top">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                >
+                  <option value="date-asc">Date ↑</option>
+                  <option value="date-desc">Date ↓</option>
+                </select>
+              </div>
+
+              <div className="ev-grid">
+                {filteredEvents.map(ev => (
+                  <div key={ev.id} className="ev-card">
+                    <div>{ev.title}</div>
+                    <div>📅 {fmtDate(ev.date)}</div>
+                    <div className="ev-actions">
+                      <button onClick={() => setModal(ev)}>Edit</button>
+                      <button onClick={() => deleteEvent(ev.id)}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* EXAMS */}
+          {view === "exams" && (
+            <>
+              <h2>Even Semester Exam Schedule 2026</h2>
+              <div className="ev-card">
+                1st Class Test – 23 Feb to 27 Feb 2026
+                <br />Syllabus Coverage: 40%
+                <br />Marks Submission: 4 March 2026
+                <br />PTM: 8 March 2026
+              </div>
+              <div className="ev-card">
+                2nd Class Test – 6 April to 10 April 2026
+                <br />Syllabus Coverage: 40%
+                <br />Marks Submission: 15 April 2026
+                <br />PTM: 18 April 2026
+              </div>
+              <div className="ev-card">
+                Internal Practical – 27 April to 30 April 2026
+                <br />Report Submission: 5 May 2026
+              </div>
+              <div className="ev-card">
+                Full Syllabus Examination – 1 May to 8 May 2026
+                <br />Marks Submission: 11 May 2026
+              </div>
+              <div className="ev-card">
+                Preparatory Leave – 15 May 2026 onwards
+              </div>
+            </>
           )}
 
           {/* HOLIDAYS */}
           {view === "holidays" && (
-            <div className="ev-grid">
-              {allHolidays.map((h) => (
-                <div className="ev-card" key={h.date}>
-                  <div className="ev-title">{h.reason}</div>
-                  <div className="ev-date">📅 {fmtDate(h.date)}</div>
-                </div>
-              ))}
-            </div>
+            <>
+              <h2>Academic Holidays 2026 (Even Semester)</h2>
+              <div className="ev-card">23 Jan – Basant Panchmi</div>
+              <div className="ev-card">26 Jan – Republic Day</div>
+              <div className="ev-card">4 Mar – Holi</div>
+              <div className="ev-card">21 Mar – Eid-Ul-Fitr</div>
+              <div className="ev-card">23 Mar – Shaheed Diwas</div>
+              <div className="ev-card">26 Mar – Ram Navmi</div>
+              <div className="ev-card">31 Mar – Mahavir Jayanti</div>
+              <div className="ev-card">14 Apr – Dr. Ambedkar Jayanti</div>
+              <div className="ev-card">
+                Weekly Off:
+                <br />All Sundays
+                <br />2nd & 4th Saturdays
+              </div>
+            </>
           )}
-
-          {/* EVENTS */}
-          {view === "events" && (
-            <div className="ev-grid">
-              {filteredEvents.map((ev) => (
-                <div className="ev-card" key={ev.id}>
-                  <div className="ev-title">{ev.title}</div>
-                  <div className="ev-date">📅 {fmtDate(ev.date)}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {["meetings", "trips", "sports"].includes(view) && (
-            <div className="empty">Coming soon...</div>
+          
+          {/* ACADEMIC ACTIVITIES */}
+          {view === "activities" && (
+            <>
+              <div className="ev-card">
+                📘 Session Information:
+                <br />Session Start: 12 January 2026
+                <br />Session End: 15 May 2026
+                <br />Total Days: 99
+                <br />Holidays: 08
+                <br />Working Days: 91
+                <br />College Timing: 9:00 AM – 4:05 PM
+              </div>
+            </>
           )}
 
         </main>
@@ -229,6 +272,29 @@ function Dashboard({ user, onLogout, darkMode, onToggleDark }) {
           onSave={handleSave}
           onClose={() => setModal(null)}
         />
+      )}
+
+      {statsModal && (
+        <div className="stats-modal-overlay" onClick={() => setStatsModal(null)}>
+          <div className="stats-modal" onClick={e => e.stopPropagation()}>
+            <h2>
+              {statsModal === "total" && "All Events"}
+              {statsModal === "upcoming" && "Upcoming Events"}
+              {statsModal === "past" && "Past Events"}
+            </h2>
+            {(statsModal === "total"
+              ? events
+              : statsModal === "upcoming"
+              ? upcomingEvents
+              : pastEvents
+            ).map(ev => (
+              <div key={ev.id} className="ev-card">
+                {ev.title} – {fmtDate(ev.date)}
+              </div>
+            ))}
+            <button onClick={() => setStatsModal(null)}>Close</button>
+          </div>
+        </div>
       )}
     </>
   );
